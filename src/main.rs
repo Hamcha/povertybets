@@ -130,6 +130,7 @@ async fn main() -> anyhow::Result<()> {
         let tpl = HTMLTemplate { replays: matches };
         let mut file = File::create(&output).await?;
         file.write_all(tpl.render()?.as_bytes()).await?;
+        open::that_detached(&output).unwrap();
         info!("Saved matches to {}", output);
     }
 
