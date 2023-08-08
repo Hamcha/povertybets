@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>PovertyBets replays</title>
+    <meta charset="utf-8" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
+      body {
+        background-color: #0c0e11;
+        color: #eaeae4;
+        font-family: "Inter", sans-serif;
+      }
+      main {
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      .game-block {
+        background: #232931;
+      }
+      .game-block * {
+        position: relative;
+      }
+      .game-info {
+        background-size: cover;
+        background-position: center;
+      }
+      .game-info h2 {
+        margin: 0;
+        padding: 5rem 2rem 1.5rem 2rem;
+        font-size: 22pt;
+        color: #fcfcf3;
+      }
+      .game-info::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+      .replay-info {
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
+      .replay-info:nth-child(even) {
+        background: rgba(0, 0, 0, 0.2);
+      }
+      .players {
+        display: flex;
+        gap: 0.5rem;
+        align-items: baseline;
+        flex: 1;
+        justify-content: center;
+      }
+      .player {
+        font-weight: bold;
+        font-size: 15pt;
+        flex: 1;
+      }
+      .player-red {
+        color: #ee486c;
+        text-align: right;
+      }
+      .player-blue {
+        color: #6eaee7;
+      }
+      .button {
+        border: 1px solid #2e5156;
+        background-color: #2c4b54;
+        padding: 5px 7px;
+        text-decoration: none;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Inter", sans-serif;
+        font-size: 1rem;
+        transition: all 100ms;
+      }
+      .button:hover {
+        border: 1px solid #467981;
+        background-color: #43707e;
+      }
+      .buttons {
+        display: flex;
+        gap: 10px;
+      }
+      .hidden-nojs {
+        display: none;
+      }
+      .score-icon {
+        border-radius: 50%;
+        background-color: #2c4b54;
+        padding: 3px 5px;
+        width: 1em;
+        text-align: center;
+      }
+      .info {
+        padding: 0 20px;
+      }
+      .done {
+        opacity: 0.3;
+      }
+      .ranked.done {
+        opacity: 0.5;
+      }
+      .winner {
+        background-color: #ffc336;
+        color: #4a350b;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      {% for (gameid, replays) in replays %}
+      <section class="game-block" data-game="{{gameid}}">
+        <section
+          class="game-info"
+          style="background-image: url('https://web.fightcade.com/static/previews/{{ gameid }}.png')"
+        >
+          <h2>{{ replays[0].channelname|clean_name }}</h2>
+        </section>
+        {% for replay in replays %}
+        <article
+          class="replay-info{% if replay.ranked > 0 %} ranked{% endif %}"
+        >
+          <div class="players">
+            <div class="player player-red">
+              {% if replay.players[0].country != "" %}
+              <img
+                alt="{{replay.players[0].country}}"
+                src="https://www.fightcade.com/flags/{{replay.players[0].country|lower}}.png"
+              />
+              {% endif %} {{replay.players[0].name}}
+            </div>
+            {% if replay.ranked > 0 %}
+            <div
+              class="score-icon"
+              data-color="red"
+              data-score="{{replay.players[0].score.unwrap_or_default()}}"
+            >
+              ?
+            </div>
+            {% endif %}
+            <div class="vs" data-ranked="{{replay.ranked}}">vs</div>
+            {% if replay.ranked > 0 %}
+            <div
+              class="score-icon"
+              data-color="blue"
+              data-score="{{replay.players[1].score.unwrap_or_default()}}"
+            >
+              ?
+            </div>
+            {% endif %}
+            <div class="player player-blue">
+              {% if replay.players[1].country != "" %}
+              <img
+                alt="{{replay.players[1].country}}"
+                src="https://www.fightcade.com/flags/{{replay.players[1].country|lower}}.png"
+              />
+              {% endif %} {{replay.players[1].name}}
+            </div>
+          </div>
+          <div class="info">
+            <time>{{replay.duration}}s</time>
+          </div>
+          <div class="buttons">
+            <a
+              href="https://replay.fightcade.com/{{replay.emulator}}/{{replay.gameid}}/{{replay.quarkid}}"
+              class="button watch-button"
+              >Watch replay</a
+            >
+            {% if replay.ranked > 0 %}
+            <button
+              type="button"
+              data-ranked="1"
+              class="button reveal-button hidden-nojs"
+            >
+              Reveal scores
+            </button>
+            {% else %}
+            <button
+              type="button"
+              data-ranked="0"
+              class="button reveal-button hidden-nojs"
+            >
+              Mark as done
+            </button>
+            {% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </section>
+      {% endfor %}
+    </main>
+    <script>
+      function markDone(btn) {
+        // Mark row as done
+        const row = findParent(btn, (el) =>
+          el.classList.contains("replay-info")
+        );
+        row.classList.toggle("done");
+        btn.classList.toggle("revert");
+
+        // If ranked, reveal scores
+        if (btn.dataset.ranked === "1") {
+          if (btn.classList.contains("revert")) {
+            btn.innerText = "Hide scores";
+
+            // Replace "vs" with "FT3/5/etc."
+            const vs = row.querySelector(".vs");
+            vs.innerHTML = `FT${vs.dataset.ranked}`;
+
+            // Replace "?" with actual scores
+            const scores = [...row.querySelectorAll(".score-icon")];
+            scores.forEach((score) => (score.innerHTML = score.dataset.score));
+
+            // Make the highest score golden and add crown
+            const winner = scores.sort(
+              (a, b) => parseInt(b.innerHTML) - parseInt(a.innerHTML)
+            )[0];
+            winner.classList.add("winner");
+          } else {
+            btn.innerText = "Reveal scores";
+
+            // Revert to "vs"
+            const vs = row.querySelector(".vs");
+            vs.innerHTML = `vs`;
+
+            // Replace scores with "?"
+            const scores = [...row.querySelectorAll(".score-icon")];
+            scores.forEach((score) => (score.innerHTML = "?"));
+
+            scores.forEach((score) => score.classList.remove("winner"));
+          }
+        } else {
+          btn.innerText = btn.classList.contains("revert")
+            ? "Mark as unread"
+            : "Mark as done";
+        }
+      }
+
+      function findParent(base, matchFn) {
+        let parent = base.parentElement;
+        while (parent != null) {
+          if (matchFn(parent)) {
+            break;
+          }
+          parent = parent.parentElement;
+        }
+        return parent;
+      }
+
+      document.querySelectorAll(".reveal-button").forEach((btn) => {
+        btn.addEventListener("click", () => markDone(btn));
+        btn.classList.remove("hidden-nojs");
+      });
+      document.querySelectorAll("time").forEach((time) => {
+        const seconds = parseFloat(time.innerText);
+        time.innerHTML = new Date(seconds * 1000).toISOString().slice(11, 19);
+      });
+    </script>
+  </body>
+</html>

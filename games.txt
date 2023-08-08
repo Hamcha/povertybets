@@ -1,0 +1,26 @@
+# RANKED
+sfiii3nr1 # Street Fighter III 3rd Strike: Fight for the Future
+kof98 # The King of Fighters '98
+kof2002 # The King of Fighters 2002
+wakuwak7 # Waku Waku 7
+garou # Garou - Mark of the Wolves
+samsh5sp # Samurai Shodown V Special
+sf2ce # Street Fighter II' - Champion Edition
+sfa2u # Street Fighter Alpha 2
+sgemf # Super Gem Fighter Mini Mix
+jojobanr1 # JoJo's Bizarre Adventure: Heritage for the Future
+vsavj # Vampire Savior
+
+# RANKED BUT UNKNOWN
+dankuga # Dan-Ku-Ga
+rotd # Rage of the Dragons
+
+# UNRANKED
+flycast_mvsc2 # Marvel Vs. Capcom 2 New Age of Heroes
+flycast_ausfache # Akatsuki Blitzkampf Ausf. Achse
+
+# NON-FIGHTERS
+magdrop3 # Magical Drop III
+
+# NON-FIGHTERS UNRANKED
+twinspri # Twinkle Star Sprites
